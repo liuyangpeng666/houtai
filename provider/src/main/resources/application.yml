@@ -1,0 +1,35 @@
+server:
+  port: 8081
+
+#配置数据库连接信息
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/test_five
+    username: root
+    password: root
+  #配置dubbo的相关信息:服务提供者、生产者
+  dubbo:
+    application:
+      #服务名称
+      name: dubbo-provider
+      #标识是服务端
+    server: true
+    protocol:
+      #dubbo 协议，默认值也是dubbo
+      name: dubbo
+      #dubbo 端口号
+      port: 20880
+    registry:
+      #注册中心地址
+      address: zookeeper://127.0.0.1:2181
+
+mybatis:
+  #mybatisxml文件的地址
+  mapper-locations: classpath:mapper/*.xml
+  #showsql
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+

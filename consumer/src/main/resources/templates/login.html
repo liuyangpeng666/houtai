@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Insert title here</title>
+    <!-- 引入easyui的css文件 :2文件-->
+    <!-- 引入easyui的css样式文件 -->
+    <link rel="stylesheet" href="../js/jquery-easyui-1.5/themes/default/easyui.css">
+    <!-- 引入easyui的图标css样式文件  -->
+    <link rel="stylesheet" href="../js/jquery-easyui-1.5/themes/icon.css">
+
+    <!-- 引入easyui的js文件：3个文件 -->
+    <!-- 引入jquery的js文件 -->
+    <script type="text/javascript" src="../js/jquery-easyui-1.5/jquery.min.js"></script>
+    <!-- 引入easyui的js文件 -->
+    <script type="text/javascript" src="../js/jquery-easyui-1.5/jquery.easyui.min.js"></script>
+    <!-- 引入easyui支持中文的js文件 -->
+    <script type="text/javascript" src="../js/jquery-easyui-1.5/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<!-- 登录弹框 -->
+<div class="easyui-dialog" data-options="width:400,height:200,title:'登录',iconCls:'icon-tip',buttons:'#mybtn'">
+    <form id="userform" method="post">
+        <table>
+            <tr>
+                <td>账号</td>
+                <td>
+                    <input class="easyui-textbox" name="userName">
+                </td>
+            </tr>
+            <tr>
+                <td>密码</td>
+                <td>
+                    <input class="easyui-passwordbox" name="userPwd">
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="mybtn">
+    <a class="easyui-linkbutton" data-options="iconCls:'icon-ok'"  onclick="javascript:login()">登录</a>
+</div>
+</body>
+<script type="text/javascript">
+    $(function(){
+
+    })
+    //登录
+    function login(){
+        $("#userform").form("submit",{
+            url:"../user/login",
+            success:function(data){
+                $.messager.alert("提示",data,"info");
+                if(data=="登录成功"){
+                    location.href="../user/toIndex";
+                }
+            }
+        });
+    }
+</script>
+</html>

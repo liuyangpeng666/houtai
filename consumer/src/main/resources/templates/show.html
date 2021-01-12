@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Insert title here</title>
+    <link rel="stylesheet" href="../js/jquery-easyui-1.5/themes/default/easyui.css">
+    <link rel="stylesheet" href="../js/jquery-easyui-1.5/themes/icon.css">
+    <script type="text/javascript" src="../js/jquery-easyui-1.5/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jquery-easyui-1.5/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../js/jquery-easyui-1.5/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<div id="mydiv">
+    <a shiro:hasPermission="user:toAdd" class="easyui-linkbutton" onclick="toAdd()">新增</a>
+</div>
+<table id="userTable"></table>
+<div id="insert" class="easyui-dialog" data-options="width:600,height:300,buttons:'#addshow',closed:true">
+    <form id="addFrom">
+        <input style="display:none" name="id">
+        <table>
+            <tr>
+                <td>账号</td>
+                <td>
+                    <input class="easyui-textbox" name="userName">
+                </td>
+            </tr>
+            <tr>
+                <td>密码</td>
+                <td>
+                    <input class="easyui-numberbox" name="userPwd">
+                </td>
+            </tr>
+            <tr>
+                <td>角色</td>
+                <td>
+                    <input class="easyui-combobox" id="role" name="roleid" data-options="width:200">
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="addshow">
+    <a class="easyui-linkbutton" onclick="openAdd()">确定</a>
+    <a class="easyui-linkbutton" onclick="closeAdd()">取消</a>
+</div>
+</body>
+<script type="text/javascript">
+    $(function(){
+        selectByAll();
+        initrole();
+    })
+    //初始化角色列表
+    function initrole(){
+        $("#role").combobox({
+            url:"../user/findRole",
+            valueField:"roleid",
+            textField:"rolename",
+            multiple:true//支持多选
+        });
+    }
+    //打开修改弹框：回显表单数据
+    function updUser(id){
+        $.ajax({
+            url:"../user/findUserById",
+            type:"post",
+            data:{id:id},
+            success:function(data){
+                initrole();//初始化角色下拉列表
+                if(data.roleid==null){
+                    data.roleid="";
+                }
+                //回显表单数据
+                $("#addFrom").form("load",data);
+                //打开弹框
+                $("#insert").dialog({
+                    closed:false,
+                    title:'修改用户'
+                });
+            }
+        })
+    }
+    //新增
+    function openAdd() {
+        $("#addFrom").form("submit",{
+            url:"../user/addUser",
+            success:function(){
+                $.messager.alert("提示","操作成功","info");
+                closeAdd();
+                selectByAll();
+            }
+        })
+    }
+    //关闭新增弹框
+    function closeAdd() {
+        $("#insert").dialog({
+            closed:true,
+        });
+    }
+    //打开新增弹框
+    function toAdd() {
+        $("#addFrom").form("reset");
+        $("#insert").dialog({
+            closed:false,
+            title:'新增'
+        });
+    }
+    //删除
+    function deleteById(id) {
+        $.messager.confirm("提示","是否确认删除？",function(r){
+            if(r){
+                $.ajax({
+                    url:"../user/deleteById",
+                    type:"post",
+                    data:{id:id},
+                    success:function(){
+                        $.messager.alert("我的消息","删除成功！！！","info");
+                        selectByAll();
+                    }
+                });
+            }
+        });
+    }
+    //查询用户
+    function selectByAll(){
+        $("#userTable").datagrid({
+            url:"../user/findUser",
+            columns:[
+                [
+                {field:"userName",width:100,title:"账号"},
+                {field:"userPwd",width:100,title:"密码"},
+                {field:"rolename",width:100,title:"角色"},
+                {field:"pro",width:100,title:"操作",formatter:function(value,row,index){
+                        return "<a href='javascript:updUser("+row.id+")'>修改</a>"+"||<a href='javascript:deleteById("+row.id+")'>删除</a>";
+                    }
+                }
+            ]
+            ],
+        })
+    }
+
+    $("#uploadImg").uploadify({
+        //插件自带  不可忽略的参数flash插件
+        'swf': '<%=request.getContextPath()%>/js/uploadify/uploadify.swf',
+        //前台请求后台的url 不可忽略的参数
+        'uploader': '<%=request.getContextPath()%>/user/uploadFile.do',
+        //给div的进度条加背景 不可忽略
+        'queueID': 'fileQueue',
+        //上传文件文件名 跟file标签 name值 保持一致传参】
+        'fileObjName' : 'imgfile',
+        //给上传按钮设置文字
+        'buttonText': '上传头像',
+        //设置文件是否自动上传
+        'auto': true,
+        //可以同时选择多个文件 默认为true  不可忽略
+        'multi': true,
+        //上传后队列是否消失
+        'removeCompleted': true,
+        //允许上传的文件后缀
+        'fileExt': '*.jpg;*.gif;*.png',
+        //
+        'cancelImg': '<%=request.getContextPath()%>/js/uploadify/uploadify-cancel.png',
+        //队列消失时间
+        'removeTimeout' : 1,
+        //上传文件的个数，项目中一共可以上传文件的个数
+        'uploadLimit':  -1,
+        'fileTypeExts': '*.jpg;*.png',
+        //成功回调函数 file：文件对象。data后台输出数据
+        'onUploadSuccess':function(file,data,response){
+            //alert(file.name+" 路径："+data.imagePath)
+            var imgurl = "http://<%= request.getServerName()%>:<%=request.getServerPort()%><%=request.getContextPath()%>/upload/"+eval(data);
+            //图片回显， 预览
+            $("#add_img").attr("src",imgurl);
+            // 文本框 回填
+            $('#hideImg').val(eval(data));
+        }
+
+    });
+</script>
+</html>
